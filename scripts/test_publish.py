@@ -8,7 +8,7 @@ Run with either of:
 import io
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 import publish
@@ -44,6 +44,7 @@ class PublishTests(unittest.TestCase):
         self.assertIn("type: paper", fm)               # domain -> type
         self.assertIn("tags: [perturbation, single-cell]", fm)
         self.assertIn("link: https://doi.org/10.1038/s41587-023-01905-6", fm)
+        self.assertIn("source: vault", fm)            # script-managed marker
         for dropped in ("status", "up", "obsidian_vault", "public", "created", "domain"):
             self.assertNotRegex(fm, rf"(?m)^{dropped}:")
         # type -> type mapping via TYPE_MAP (startup -> company)
@@ -79,6 +80,43 @@ class PublishTests(unittest.TestCase):
         output = run(self.out, "--dry-run")
         self.assertEqual(list(self.out.glob("*.md")), [])
         self.assertIn("would write", output)
+
+    STALE = ('---\ntitle: "Old"\ndate: 2026-01-01\ntype: paper\n'
+             'summary: "Stale"\nsource: vault\n---\n\nOld body.\n')
+    HANDWRITTEN = ('---\ntitle: "Mine"\ndate: 2026-01-01\ntype: paper\n'
+                   'summary: "Hand-written"\n---\n\nMy body.\n')
+
+    def test_prune_removes_stale_generated_posts(self):
+        run(self.out)
+        stale = self.out / "old-note.md"
+        stale.write_text(self.STALE)
+        handwritten = self.out / "handwritten.md"
+        handwritten.write_text(self.HANDWRITTEN)
+        output = run(self.out, "--prune")
+        self.assertFalse(stale.exists())            # marker + gone from vault
+        self.assertTrue(handwritten.exists())       # no marker - never touched
+        self.assertTrue((self.out / "gears-notes.md").exists())  # still public
+        self.assertTrue((self.out / "deep-dive.md").exists())
+        self.assertIn("removed    old-note.md", output)
+        self.assertIn("1 removed", output)
+
+    def test_prune_dry_run_deletes_nothing(self):
+        run(self.out)
+        stale = self.out / "old-note.md"
+        stale.write_text(self.STALE)
+        output = run(self.out, "--prune", "--dry-run")
+        self.assertTrue(stale.exists())
+        self.assertIn("would remove  old-note.md", output)
+
+    def test_refuses_directory_without_obsidian_folder(self):
+        with tempfile.TemporaryDirectory() as not_a_vault:
+            (Path(not_a_vault) / "note.md").write_text("---\npublic: true\n---\nhi\n")
+            stderr = io.StringIO()
+            with redirect_stdout(io.StringIO()), redirect_stderr(stderr):
+                code = publish.main([not_a_vault, "--out", str(self.out)])
+            self.assertEqual(code, 2)
+            self.assertIn(".obsidian", stderr.getvalue())
+            self.assertEqual(list(self.out.glob("*.md")), [])
 
 
 if __name__ == "__main__":

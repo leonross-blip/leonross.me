@@ -20,7 +20,7 @@ Markdown and YAML, deployed to GitHub Pages automatically on every push to
 ## Publish from an Obsidian vault (~30 seconds)
 
 ```bash
-python scripts/publish.py /path/to/vault        # add --dry-run to preview
+python scripts/publish.py /path/to/vault --prune   # add --dry-run to preview
 ```
 
 Copies every vault note with `public: true` in its frontmatter into
@@ -29,8 +29,11 @@ post type (edit `TYPE_MAP` in the script to add domains), keeping `title`,
 `summary`, `link` and `tags`, dropping everything else. `[[wikilinks]]`
 become real links when the target is also public, plain text otherwise;
 `> [!note]` callouts and `![[embeds]]` are stripped. Re-running is safe
-(idempotent); it never deletes posts — remove unpublished ones by hand.
-Tests: `python scripts/test_publish.py`.
+(idempotent). Generated posts are marked with `source: vault`; with
+`--prune`, marked posts whose vault note is no longer `public: true` are
+deleted (hand-written posts are never touched). The script refuses to run
+on a directory without a `.obsidian` folder, so it can't be pointed at the
+wrong place. Tests: `python scripts/test_publish.py`.
 
 ## Update Now (~30 seconds)
 

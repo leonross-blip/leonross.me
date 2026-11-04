@@ -2,7 +2,11 @@
 """Publish posts from an Obsidian vault into src/content/posts/.
 
 Usage:
-    python scripts/publish.py /path/to/vault [--dry-run] [--out DIR]
+    python scripts/publish.py /path/to/vault [--dry-run] [--prune] [--out DIR]
+
+The vault path must contain a .obsidian folder (every Obsidian vault has
+one) — the script refuses to run otherwise, so it can't be pointed at the
+wrong directory.
 
 Copies every Markdown file in the vault whose frontmatter has `public: true`
 into src/content/posts/, converting it to the site's format:
@@ -15,10 +19,14 @@ into src/content/posts/, converting it to the site's format:
                 (![[file]]) are removed.
   callouts      `> [!note]` / `> [!note]-` blockquote blocks are stripped.
 
+Every generated post carries a `source: vault` frontmatter line (ignored by
+the site build) marking it as script-managed. With --prune, any post in the
+output directory that has that marker but whose vault note is no longer
+`public: true` is deleted; hand-written posts (no marker) are never touched.
+
 The script is idempotent: output filenames are slugified from the vault
 filename, files are only rewritten when their content changed, and nothing
-in the vault is modified. It does not delete previously published posts —
-remove those from src/content/posts/ by hand.
+in the vault is modified.
 
 Uses PyYAML for frontmatter when installed; otherwise falls back to a small
 built-in parser that covers normal Obsidian frontmatter (strings, numbers,
@@ -242,6 +250,7 @@ def convert(path: Path, fm: dict, body: str, public_slugs: dict[str, str],
     tags = as_tags(fm.get("tags"))
     if tags:
         lines.append("tags: [" + ", ".join(tags) + "]")
+    lines.append("source: vault")  # marks the post as managed by this script
     lines.append("---")
     return "\n".join(lines) + "\n\n" + body.strip() + "\n"
 
@@ -251,12 +260,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("vault", type=Path, help="path to the Obsidian vault")
     ap.add_argument("--dry-run", action="store_true",
                     help="report what would change without writing anything")
+    ap.add_argument("--prune", action="store_true",
+                    help="delete script-generated posts (source: vault) whose "
+                         "vault note is no longer public: true")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT,
                     help="output directory (default: src/content/posts)")
     args = ap.parse_args(argv)
 
     if not args.vault.is_dir():
         print(f"error: {args.vault} is not a directory", file=sys.stderr)
+        return 2
+    if not (args.vault / ".obsidian").is_dir():
+        print(f"error: {args.vault} contains no .obsidian folder - "
+              "is this really an Obsidian vault?", file=sys.stderr)
         return 2
 
     def warn(msg: str) -> None:
@@ -284,8 +300,25 @@ def main(argv: list[str] | None = None) -> int:
             print(f"wrote      {dest.name}  (from {path.relative_to(args.vault)})")
         written += 1
 
+    removed = 0
+    if args.prune:
+        keep = set(public_slugs.values())
+        for dest in sorted(args.out.glob("*.md")) if args.out.is_dir() else []:
+            dest_fm, _ = split_frontmatter(dest.read_text(encoding="utf-8"))
+            if not (isinstance(dest_fm, dict) and dest_fm.get("source") == "vault"):
+                continue  # hand-written post - never touched
+            if dest.stem in keep:
+                continue  # vault note still public
+            if args.dry_run:
+                print(f"would remove  {dest.name}  (vault note no longer public)")
+            else:
+                dest.unlink()
+                print(f"removed    {dest.name}  (vault note no longer public)")
+            removed += 1
+
     print(f"{'(dry run) ' if args.dry_run else ''}"
           f"{written} written, {unchanged} unchanged, {skipped} skipped, "
+          f"{f'{removed} removed, ' if args.prune else ''}"
           f"{len(notes)} public note(s) found")
     return 0
 
