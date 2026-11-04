@@ -1,11 +1,13 @@
 ---
-title: "Company: Recursion — industrialising phenotypic screening"
+title: "Example · Company: Recursion — industrialising phenotypic screening"
 date: 2026-10-27
 type: company
 summary: Recursion bet that massive automated cell imaging plus ML beats hypothesis-driven discovery. The platform is real; the open question is whether it produces differentiated clinical assets faster than the money runs out.
 link: https://www.recursion.com
 tags: [techbio, drug-discovery, platform]
 ---
+
+> **Example post.** A worked example of the company template, kept to show the format — replace it with your own notes.
 
 ## What they sell
 

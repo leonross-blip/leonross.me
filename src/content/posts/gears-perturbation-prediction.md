@@ -1,5 +1,5 @@
 ---
-title: "Paper: GEARS — predicting transcriptional outcomes of novel multigene perturbations"
+title: "Example · Paper: GEARS — predicting transcriptional outcomes of novel multigene perturbations"
 date: 2026-10-20
 type: paper
 summary: GEARS uses a gene-relationship graph to predict expression changes for unseen single and two-gene perturbations. The headline numbers are strong, but later benchmarks suggest simple baselines close much of the gap.
@@ -8,6 +8,8 @@ tags: [perturbation, single-cell, graph-neural-networks]
 obsidian_vault: research-notes
 aliases: [gears]
 ---
+
+> **Example post.** A worked example of the paper template, kept to show the format — replace it with your own notes.
 
 ## Claim
 

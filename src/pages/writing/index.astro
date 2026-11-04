@@ -17,7 +17,15 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
     it holds up).
   </p>
 
-  <div class="filters" data-filters hidden>
+  <noscript>
+    <style>
+      /* Without JS the filter buttons would do nothing — hide them. */
+      .filters {
+        display: none;
+      }
+    </style>
+  </noscript>
+  <div class="filters" data-filters>
     <div class="filter-row" role="group" aria-label="Filter by type">
       <button data-type="all" aria-pressed="true">All</button>
       <button data-type="paper" aria-pressed="false">Papers</button>
@@ -81,11 +89,11 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
 
 <script>
   // The only client-side JS on the site: show/hide posts by type and tag.
-  // Without JS the filter bar stays hidden and every post is visible.
+  // Without JS the filter bar is hidden via <noscript> CSS and every post
+  // is visible.
   const root = document.querySelector("[data-filters]") as HTMLElement;
   const posts = [...document.querySelectorAll<HTMLElement>("[data-post]")];
   const empty = document.querySelector("[data-empty]") as HTMLElement;
-  root.hidden = false;
 
   let type = "all";
   let tag: string | null = null;
