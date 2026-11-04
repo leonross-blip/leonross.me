@@ -17,6 +17,21 @@ Markdown and YAML, deployed to GitHub Pages automatically on every push to
 4. Write the body, commit, push to `main`. Done — it appears on `/writing/`,
    the home page, and the RSS feed.
 
+## Publish from an Obsidian vault (~30 seconds)
+
+```bash
+python scripts/publish.py /path/to/vault        # add --dry-run to preview
+```
+
+Copies every vault note with `public: true` in its frontmatter into
+`src/content/posts/`, mapping `created` → `date` and `type`/`domain` → the
+post type (edit `TYPE_MAP` in the script to add domains), keeping `title`,
+`summary`, `link` and `tags`, dropping everything else. `[[wikilinks]]`
+become real links when the target is also public, plain text otherwise;
+`> [!note]` callouts and `![[embeds]]` are stripped. Re-running is safe
+(idempotent); it never deletes posts — remove unpublished ones by hand.
+Tests: `python scripts/test_publish.py`.
+
 ## Update Now (~30 seconds)
 
 Edit `src/content/now.md` (the three sections: Working on, Reading,

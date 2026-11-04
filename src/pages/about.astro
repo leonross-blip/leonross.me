@@ -5,8 +5,24 @@ import { Content as AboutContent } from "../content/about.md";
 
 <Base title="About" description="About Leon Ross — background and CV.">
   <h1>About</h1>
+  <img
+    src="/photo.jpg"
+    alt="Leon Ross sitting in a wood-panelled lecture theatre"
+    width="1408"
+    height="939"
+    class="portrait"
+  />
   <AboutContent />
   <p>
     <a href="/cv.pdf">Download my CV (PDF)</a>
   </p>
 </Base>
+
+<style>
+  .portrait {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+</style>
