@@ -1,0 +1,9 @@
+# Projects shown on /projects. Each entry needs:
+#   title:    project name
+#   oneLiner: one sentence on what it is
+#   github:   full URL to the repo (optional — omit the line to hide the link)
+#   status:   free text, e.g. "active", "paused", "done"
+- title: leonross.me
+  oneLiner: This site — Astro, Markdown and YAML, deployed to GitHub Pages by a single workflow.
+  github: https://github.com/leonross-blip/leonross.me
+  status: active

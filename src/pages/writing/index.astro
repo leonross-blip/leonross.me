@@ -1,0 +1,125 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import PostItem from "../../components/PostItem.astro";
+
+const posts = (await getCollection("posts")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+
+<Base title="Writing" description="Notes on papers and companies.">
+  <h1>Writing</h1>
+  <p class="muted">
+    Short notes of two kinds: <strong>papers</strong> (what a paper claims vs.
+    what it shows) and <strong>companies</strong> (what they sell and whether
+    it holds up).
+  </p>
+
+  <div class="filters" data-filters hidden>
+    <div class="filter-row" role="group" aria-label="Filter by type">
+      <button data-type="all" aria-pressed="true">All</button>
+      <button data-type="paper" aria-pressed="false">Papers</button>
+      <button data-type="company" aria-pressed="false">Companies</button>
+    </div>
+    {
+      tags.length > 0 && (
+        <div class="filter-row" role="group" aria-label="Filter by tag">
+          {tags.map((tag) => (
+            <button class="tag" data-tag={tag} aria-pressed="false">
+              #{tag}
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <div class="post-list">
+    {
+      posts.map((post) => (
+        <div
+          data-post
+          data-type={post.data.type}
+          data-tags={post.data.tags.join(",")}
+        >
+          <PostItem post={post} />
+        </div>
+      ))
+    }
+  </div>
+  <p class="muted" data-empty hidden>Nothing matches that filter.</p>
+</Base>
+
+<style>
+  .filters {
+    margin: 1.5rem 0 2rem;
+  }
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .filters button {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .filters button[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+</style>
+
+<script>
+  // The only client-side JS on the site: show/hide posts by type and tag.
+  // Without JS the filter bar stays hidden and every post is visible.
+  const root = document.querySelector("[data-filters]") as HTMLElement;
+  const posts = [...document.querySelectorAll<HTMLElement>("[data-post]")];
+  const empty = document.querySelector("[data-empty]") as HTMLElement;
+  root.hidden = false;
+
+  let type = "all";
+  let tag: string | null = null;
+
+  function apply() {
+    let shown = 0;
+    for (const post of posts) {
+      const typeOk = type === "all" || post.dataset.type === type;
+      const tagOk =
+        tag === null || (post.dataset.tags || "").split(",").includes(tag);
+      post.hidden = !(typeOk && tagOk);
+      if (!post.hidden) shown++;
+    }
+    empty.hidden = shown > 0;
+  }
+
+  for (const btn of root.querySelectorAll<HTMLButtonElement>("[data-type]")) {
+    btn.addEventListener("click", () => {
+      type = btn.dataset.type!;
+      for (const b of root.querySelectorAll("[data-type]"))
+        b.setAttribute("aria-pressed", String(b === btn));
+      apply();
+    });
+  }
+
+  for (const btn of root.querySelectorAll<HTMLButtonElement>("[data-tag]")) {
+    btn.addEventListener("click", () => {
+      tag = tag === btn.dataset.tag ? null : btn.dataset.tag!;
+      for (const b of root.querySelectorAll<HTMLElement>("[data-tag]"))
+        b.setAttribute(
+          "aria-pressed",
+          String((b as HTMLButtonElement).dataset.tag === tag),
+        );
+      apply();
+    });
+  }
+</script>

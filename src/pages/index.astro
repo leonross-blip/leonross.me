@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import PostItem from "../components/PostItem.astro";
+import { SITE } from "../site.config";
+
+const posts = (await getCollection("posts"))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<Base description={SITE.description}>
+  <h1>Leon Ross</h1>
+  <p>
+    I'm doing an MPhil in Computational Biology at the University of Cambridge
+    (Fitzwilliam College). Before that: a First in Mathematics from the
+    University of Bristol, and a stint as an investment banking analyst at
+    J.P. Morgan Cazenove.
+  </p>
+  <p>
+    I'm interested in machine learning for perturbation biology, drug target
+    discovery, and early-stage startups — mostly where those three overlap.
+  </p>
+  <p>
+    See <a href="/now/">what I'm doing now</a>, or
+    <a href="/contact/">get in touch</a>.
+  </p>
+
+  <h2>Latest writing</h2>
+  {posts.map((post) => <PostItem post={post} />)}
+  <p><a href="/writing/">All writing →</a></p>
+</Base>
