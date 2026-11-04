@@ -1,0 +1,31 @@
+---
+import { execSync } from "node:child_process";
+import Base from "../layouts/Base.astro";
+import { Content as NowContent } from "../content/now.md";
+
+// Last-edited date comes from git history at build time, so updating
+// now.md is the only step needed — no date field to remember.
+let updated = new Date();
+try {
+  const iso = execSync("git log -1 --format=%cI -- src/content/now.md", {
+    encoding: "utf8",
+  }).trim();
+  if (iso) updated = new Date(iso);
+} catch {
+  // Not a git checkout (e.g. a bare export) — fall back to build date.
+}
+const updatedLabel = updated.toLocaleDateString("en-GB", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<Base title="Now" description="What Leon Ross is working on now.">
+  <h1>Now</h1>
+  <p class="muted">
+    Last updated
+    <time datetime={updated.toISOString().slice(0, 10)}>{updatedLabel}</time>
+  </p>
+  <NowContent />
+</Base>

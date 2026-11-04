@@ -1,0 +1,43 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+const { post } = Astro.props;
+const date = post.data.date.toLocaleDateString("en-GB", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+---
+
+<article class="post-item">
+  <p class="post-meta">
+    <time datetime={post.data.date.toISOString().slice(0, 10)}>{date}</time>
+    <span class="type-badge">{post.data.type}</span>
+  </p>
+  <h2><a href={`/writing/${post.id}/`}>{post.data.title}</a></h2>
+  <p class="muted">{post.data.summary}</p>
+</article>
+
+<style>
+  .post-item {
+    margin-bottom: 1.75rem;
+  }
+  .post-item h2 {
+    font-size: 1.05rem;
+    margin: 0.1rem 0 0.25rem;
+  }
+  .post-item h2 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .post-item h2 a:hover {
+    color: var(--accent);
+  }
+  .post-item p:last-child {
+    margin-bottom: 0;
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../site.config";
+
+// Entity-encode the address so it never appears verbatim in the HTML.
+// Browsers decode it transparently; naive scrapers grepping for
+// "user@domain" don't. No client-side JS needed.
+const email = `${SITE.emailUser}@${SITE.emailDomain}`;
+const encode = (s: string) =>
+  s
+    .split("")
+    .map((c) => `&#${c.charCodeAt(0)};`)
+    .join("");
+const emailLink = `<a href="${encode("mailto:" + email)}">${encode(email)}</a>`;
+---
+
+<Base title="Contact" description="How to reach Leon Ross.">
+  <h1>Contact</h1>
+  <p>{SITE.openTo}</p>
+  <ul>
+    <li>Email: <Fragment set:html={emailLink} /></li>
+    <li>LinkedIn: <a href={SITE.linkedin}>{SITE.linkedin.replace("https://www.", "")}</a></li>
+    <li>GitHub: <a href={SITE.github}>{SITE.github.replace("https://", "")}</a></li>
+  </ul>
+</Base>

@@ -1,0 +1,29 @@
+# Projects shown on /projects. Each entry needs:
+#   title:    project name
+#   oneLiner: one sentence on what it is
+#   github:   full URL to the repo (optional — omit the line to hide the link)
+#   status:   free text, e.g. "active", "paused", "done"
+- title: perturb-policy-harness
+  oneLiner: Test bed for active-learning policies over perturbation screens.
+  github: https://github.com/leonross-blip/perturb-policy-harness
+  status: active
+
+- title: ml-bio-ladder
+  oneLiner: Three small ML-for-biology builds, each against a baseline.
+  github: https://github.com/leonross-blip/ml-bio-ladder
+  status: active
+
+- title: mlb-from-scratch
+  oneLiner: From-scratch implementations. # TODO: repo has no GitHub description yet — write a real one-liner here.
+  github: https://github.com/leonross-blip/mlb-from-scratch
+  status: active
+
+- title: AlphaMissense literature review
+  oneLiner: Independent research analysing the AlphaMissense model, comparing ClinVar data with AlphaMissense predictions to explore strengths, weaknesses, and variant case studies.
+  github: https://github.com/leonross-blip/Alphamissense-literature-review
+  status: done
+
+- title: Rosalind Bioinformatics Portfolio
+  oneLiner: Solutions to Rosalind bioinformatics problems, developed for my application to the masters in Bioinformatics.
+  github: https://github.com/leonross-blip/Rosalind-Bioinformatics-Portfolio
+  status: done

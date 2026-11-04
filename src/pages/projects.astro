@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+
+const projects = await getCollection("projects");
+---
+
+<Base title="Projects" description="Projects by Leon Ross.">
+  <h1>Projects</h1>
+  <div class="cards">
+    {
+      projects.map(({ data }) => (
+        <div class="card">
+          <h3>{data.title}</h3>
+          <p>{data.oneLiner}</p>
+          <p class="card-footer">
+            <span class="type-badge">{data.status}</span>
+            {data.github && <a href={data.github}>GitHub →</a>}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .card h3 {
+    margin: 0 0 0.4rem;
+  }
+  .card p {
+    margin: 0 0 0.75rem;
+  }
+  .card-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0;
+  }
+</style>
